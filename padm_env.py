@@ -5,18 +5,18 @@ import numpy as np
 import gymnasium as gym
 
 # Paths to your images
-AGENT_IMG_PATH = r'C:\Users\admin\Desktop\test1_a3\Boy.png'
-GOAL_IMG_PATH = r'C:\Users\admin\Desktop\test1_a3\Treasure.png'
-OBSTACLE_IMG_PATH = r'C:\Users\admin\Desktop\test1_a3\Snake.png'
-BLACK_HOLE_IMG_PATH = r'C:\Users\admin\Desktop\test1_a3\Cave.png'
-BACKGROUND_IMG_PATH = r'C:\Users\admin\Desktop\test1_a3\Grass.jpg'
+AGENT_IMG_PATH = "Boy.png"
+GOAL_IMG_PATH = "Treasure.png"
+OBSTACLE_IMG_PATH = "Snake.png"
+BLACK_HOLE_IMG_PATH = "Cave.png"
+BACKGROUND_IMG_PATH = "Grass.jpg"
 
 class ChildEnv(gym.Env):
     """
     Custom environment that follows the gym interface.
     This is a simple grid environment where the agent needs to reach a goal while avoiding obstacles.
     """
-    def __init__(self, grid_size=6):
+    def __init__(self, goal_coordinates, grid_size=6):
         super(ChildEnv, self).__init__()
         
         # Grid and cell size
@@ -73,10 +73,12 @@ class ChildEnv(gym.Env):
         elif action == 3 and self.state[1] > 0:  # Left
             self.state[1] -= 1
         
-        self.reward = -1
+        
         if np.array_equal(self.state, self.goal):
             self.reward = 10
             self.done = True
+        else:
+            self.reward = -1
         
         for hell in self.hell_states:
             if np.array_equal(self.state, hell):
@@ -108,3 +110,17 @@ class ChildEnv(gym.Env):
     
     def close(self):
         pygame.quit()
+
+
+def create_env(goal_coordinates,
+               hell_state_coordinates, 
+                blackhole_coordinates):
+    # Create the environment:
+    # -----------------------
+    env = ChildEnv(goal_coordinates=goal_coordinates,grid_size=6)
+    
+    for i in range(len(hell_state_coordinates)):
+        env.add_hell_states(hell_states=hell_state_coordinates[i])
+    
+
+    return env
